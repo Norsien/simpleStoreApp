@@ -1,0 +1,157 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[T1]{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{makecell}
+\usepackage{listings}
+
+
+\hoffset=-3.0cm                 
+\textwidth=18cm                
+\evensidemargin=0pt
+\voffset=-3cm                  
+\textheight=27cm                
+\setlength{\parindent}{0pt}             
+\setlength{\parskip}{\medskipamount}    
+\raggedbottom                           
+
+\title{Wykorzystanie MS SQL i pakietów MS Business Intelligence \\do budowy aplikacji}
+\author{Smoliński Mateusz}
+\date{kwiecień - czerwiec 2022}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+\section{Zakres ćwiczenia}
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline
+        Numer & Opis wymagania \\ \hline
+        W001 & \makecell {Import plików z danymi sprzedaży, dostaw i ręcznie obliczonego stanu sklepu \\
+        (napisanego w Excelu, zapisanego do Unicode txt)}\\ \hline
+        W001a & \makecell{Dane sprzedaży zawierają: numer rachunku, datę, ilość/liczbę produktów, \\ 
+        kod produktu, cenę brutto, cenę netto, stawkę VAT}\\ \hline
+        W001b & \makecell{Dane dostaw zawierają: kod dostawcy, datę, ilość/liczbę produktów, \\
+        kod i nazwę produktu, kod i nazwę producenta, cenę hurtową}\\ \hline
+        W002 & \makecell{Powstaje słownik produktów i producentów}\\ \hline
+        W003 & \makecell{Obliczanie różnicy między teoretycznym, a rzeczywistym stanem kasy}\\ \hline
+        W004 & \makecell{Wstawienie nowego pliku z ręczenie obliczonym stanem poprzedzone jest usunięciem \\
+        danych ze starego.}\\ \hline
+        W005 & \makecell{Generowanie raportu dotyczących pojedynczego produktu}\\ \hline
+        W006 & \makecell{Wszystkie kwoty w PLN (jedna waluta)}\\ \hline
+        W007 & \makecell{Produkty nie mają stałych cen, na różnych dokumentach mogą występować inne}\\ \hline
+
+        
+
+
+    \end{tabular}
+\end{center}
+Zrezygnowano z punktów dotyczących porównania stanu w bazie ze stanem ręcznie policzonym i 
+porównywania pieniędzy.
+\section{Opis problemu}
+Aplikacja zajmuje się przechowywaniem i przeliczaniem danych dotyczących stanu magazynu sklepu, 
+na podstawie wgrywanych plików z dostaw lub danych sprzedaży i informacji wpisanych ręcznie.
+Można sprawdzić stan liczbowy poszczególnych produktów i zmiany w ich liczebności. 
+Została wykonana w środowisku Java przy użyciu Spring Boota i Vaadin.
+
+\section{Analiza funkcjonalna}
+\subsection{Wygrywanie pliku}
+Aplikacja na głównym widoku posiada możliwość wgrania danych z pliku zapisanego do formatu Unicode txt.
+Kolumny w pliku muszą być odpowiednio nazwane, żeby odczyt przebiegł pomyślnie.
+Podczas wczytywania pliku automatycznie tworzeni są pojawiający się po raz pierwszy producenci, produkty,
+dostawy i rachunki oraz aktualizowany jest ich stan. Plik nie jest zapisywany w bazie danych po jego odczytaniu.
+
+\subsection{Dodanie elementów}
+W ramach aplikacji, na każdym z dostępnych okien widoku (z wyjątkiem Stock - zapas) można dodać do bazy 
+danych nowy rekord z podanymi danymi. Aplikacja potrzebuje otrzymać kody identyfikacyjne istniejących już 
+elementów w bazie, którym podlega nowo dodany obiekt (np. produkt wymaga kodu producenta) oraz unikalny 
+kod dodawanego obiektu, jeżeli taki jest potrzebny.
+\subsection{Przeglądanie zawartości tabel}
+Aplikacja posiada widoki do różnych tabel z bazy danych, gdzie wyświetlona jest przechowywana 
+zawartość.
+
+\subsection{Podgląd produktu}
+W widoku Produkty można przejść do widoku informacji o produktach, który wyświetli zakupy i sprzedaże 
+tego produktu przez sklep. 
+
+\section{Struktura bazy}
+Baza danych jest automatycznie tworzona przy pomocy Spring Boota. 
+Zostały dodane obiekty odpowiadające relacjom many to many.
+Tworzone są tabele o odpowiadających 
+obiektom nazwach:
+\begin{itemize}
+    \item Producers - producenci
+    \item Products - produkty, wymagają producenta
+    \item Stock - zapas produktów, tworzone razem z produktem
+    \item Delivery - dostawy do sklepu
+    \item Purchases - many to many pomiędzy produktami i dostawami, wymaga obu
+    \item Receipt - rachunki (zakupy kleintów)
+    \item Sales - many to many pomiędzy produktami i rachunkami, wymaga obu
+\end{itemize}
+\section{Opis narzędzi i sposobu realizacji}
+Spring Boot upraszcza pracę z bazami danych tworząc automatyczne przypisania obiektów Javy 
+do tabel bazy danych. Ułatwia komunikację aplikacji z bazą danych. 
+Vaadin pozwala tworzyć przejrzyste aplikacje w Javie przy użyciu przygotowanych 
+komponentów bez potrzeby zajmowania się frontenem.
+\section{Dokumentacja działania}
+\subsection{Treść plików z danymi}
+\begin{lstlisting}
+numer	dostawa	data	kod produktu	nazwa produktu	kod producenta	nazwa producenta	ile	cena hurtowa
+1	AX11	21.04.2022	3170512345	pe cola	PC341	Pe Company z. o.o.	480	3,78
+2	AX11	21.04.2022	3170554823	pe zelki	PC341	Pe Company z. o.o.	100	3,68
+3	AX11	21.04.2022	3170564424	pe sok jablkowy	PC341	Pe Company z. o.o.	120	2,83
+4	BEL314	21.04.2022	2041412064	kajzerka mala z	PIEK02	Piekarnia Zima	60	0,33
+5	BEL314	21.04.2022	2041454345	bagietka z	PIEK02	Piekarnia Zima	10	1,91
+6	BEL314	21.04.2022	3182146375	chrupki serowe	SERG	Serowe Gub	60	2,41
+7	BEL314	21.04.2022	3182146371	prazynki	SERG	Serowe Gub	60	2,35
+\end{lstlisting}
+
+\begin{lstlisting}
+numer	rachunek	data	kod produktu	nazwa produktu	ile	netto	brutto	vat percent
+1	220422101143	22.04.2022 10:11:43	3170512345	pe cola	2	3,65	4,49	23
+2	220422101143	23.04.2022 10:11:43	3170564424	pe sok jablkowy	1	3,69	3,99	8
+3	220422101143	24.04.2022 10:11:43	2041412064	kajzerka mala z	10	0,37	0,39	5
+4	220422101621	24.04.2022 10:16:21	3182146371	prazynki	2	4,22	5,19	23
+5	220422101621	24.04.2022 10:16:21	3170512345	pe cola	3	3,65	4,49	23
+6	220422102302	24.04.2022 10:23:02	2041412064	kajzerka mala z	6	0,37	0,39	5
+7	220422102302	24.04.2022 10:23:02	2041454345	bagietka z	1	2,56	2,69	5
+8	220422102302	24.04.2022 10:23:02	3182146375	chrupki serowe	2	3,41	4,19	23
+9	220422102302	24.04.2022 10:23:02	3182146371	prazynki	1	4,22	5,19	23
+10	220422102651	24.04.2022 10:26:51	2041412064	kajzerka mala z	5	0,37	0,39	5
+11	220422102930	24.04.2022 10:29:30	3170512345	pe cola	1	3,65	4,49	23
+12	220422102930	24.04.2022 10:29:30	3170554823	pe zelki	2	3,65	4,49	23
+13	220422103311	24.04.2022 10:33:11	3170512345	pe cola	1	3,65	4,49	23
+14	220422103738	24.04.2022 10:37:38	3170564424	pe sok jablkowy	1	3,69	3,99	8
+15	220422103738	24.04.2022 10:37:38	2041454345	bagietka z	2	2,56	2,69	5
+\end{lstlisting}
+\subsection{Przykładowe widoki}
+\begin{center}
+    \includegraphics[width=17cm]{fig1.png}
+\end{center}
+\begin{center}
+    \includegraphics[width=17cm]{fig2.png}
+\end{center}
+\begin{center}
+    \includegraphics[width=17cm]{fig3.png}
+\end{center}
+
+
+
+
+
+\section{Dalsze możliwości rozwoju}
+\begin{itemize}
+    \item Odczyt plików w innych formatach.
+    \item Zapisywanie plików z danymi do bazy danych.
+    \item Filtrowanie po atrybutach.
+    \item Przekierowywanie do widoku obiektu przy kliknięciu na jego nazwę.
+    \item Generowanie plików CSV.
+    \item Porównanie zmian cen produktów.
+\end{itemize}
+
+
+
+\end{document}

@@ -1,0 +1,13 @@
+\contentsline {section}{\numberline {1}Zakres ćwiczenia}{2}{}%
+\contentsline {section}{\numberline {2}Opis problemu}{2}{}%
+\contentsline {section}{\numberline {3}Analiza funkcjonalna}{2}{}%
+\contentsline {subsection}{\numberline {3.1}Wygrywanie pliku}{2}{}%
+\contentsline {subsection}{\numberline {3.2}Dodanie elementów}{2}{}%
+\contentsline {subsection}{\numberline {3.3}Przeglądanie zawartości tabel}{2}{}%
+\contentsline {subsection}{\numberline {3.4}Podgląd produktu}{2}{}%
+\contentsline {section}{\numberline {4}Struktura bazy}{3}{}%
+\contentsline {section}{\numberline {5}Opis narzędzi i sposobu realizacji}{3}{}%
+\contentsline {section}{\numberline {6}Dokumentacja działania}{3}{}%
+\contentsline {subsection}{\numberline {6.1}Treść plików z danymi}{3}{}%
+\contentsline {subsection}{\numberline {6.2}Przykładowe widoki}{4}{}%
+\contentsline {section}{\numberline {7}Dalsze możliwości rozwoju}{5}{}%
